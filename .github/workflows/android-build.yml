@@ -17,7 +17,10 @@ jobs:
   build:
     name: Build MEDEIA Debug APK
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 35
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
 
     steps:
       - name: Checkout repository
@@ -34,11 +37,21 @@ jobs:
         with:
           gradle-version: "8.13"
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install Android SDK packages
-        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+      # GitHub-hosted Ubuntu runners already include the Android SDK.
+      # Do not use setup-android here: its legacy "tools" package request
+      # caused the previous runs to fail.
+      - name: Accept Android SDK licenses and install required packages
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | sort -V | tail -n 1)"
+          if [ -z "$SDKMANAGER" ]; then
+            echo "sdkmanager was not found under $ANDROID_HOME/cmdline-tools"
+            exit 1
+          fi
+          echo "Using SDK manager: $SDKMANAGER"
+          "$SDKMANAGER" --sdk_root="$ANDROID_HOME" --licenses <<< "$(printf 'y\n%.0s' {1..50})"
+          "$SDKMANAGER" --sdk_root="$ANDROID_HOME" "platform-tools" "platforms;android-36" "build-tools;36.0.0"
 
       - name: Build Debug APK
         run: gradle --no-daemon assembleDebug
