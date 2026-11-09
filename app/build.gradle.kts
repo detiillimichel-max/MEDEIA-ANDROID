@@ -38,7 +38,7 @@ android {
 
 dependencies {
     val media3Version = "1.11.1"
-    val composeBom = platform("androidx.compose:compose-bom:2025.10.01")
+    val composeBom = platform("androidx.compose:compose-bom:2026.09.00")
 
     implementation("androidx.core:core-ktx:1.17.0")
     implementation("androidx.activity:activity-compose:1.11.0")
@@ -54,5 +54,5 @@ dependencies {
     implementation("androidx.media3:media3-ui:$media3Version")
 
     // LibVLC: motor alternativo planejado. A integração será feita em etapa própria.
-    implementation("org.videolan.android:libvlc-all:3.7.1")
+    implementation("org.videolan.android:libvlc-all:3.7.7")
 }
