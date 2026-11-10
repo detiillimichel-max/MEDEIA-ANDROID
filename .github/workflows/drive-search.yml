@@ -32,13 +32,18 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Run offline tests
+        run: python -m unittest discover -s tests -v
+
       - name: Search Google Drive index
         env:
           FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+          MEDEIA_QUERY: ${{ inputs.query }}
+          MEDEIA_LIMIT: ${{ inputs.limit }}
         run: |
           python engine/search_google_drive.py \
-            --query "${{ inputs.query }}" \
-            --limit "${{ inputs.limit }}"
+            --query "$MEDEIA_QUERY" \
+            --limit "$MEDEIA_LIMIT"
 
       - name: Publish search catalog
         run: |
