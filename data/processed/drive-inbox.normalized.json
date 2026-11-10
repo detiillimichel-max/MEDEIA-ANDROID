@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "catalog": "MEDEIA",
-  "generated_at": "2026-11-10T00:00:00.000Z",
+  "generated_at": "2026-11-10",
   "input_file": "data/drive-inbox/links-drive.txt",
   "policy": "links_supplied_by_user_only; no_external_access_check",
   "summary": {
