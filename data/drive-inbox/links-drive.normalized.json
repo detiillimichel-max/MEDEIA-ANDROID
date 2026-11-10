@@ -1,6 +1,6 @@
 {
   "schema_version": "medeia.drive-inbox.v1",
-  "generated_at": "2026-11-10T22:09:22.059Z",
+  "generated_at": "2026-11-10T22:09:40.929Z",
   "source_file": "data/drive-inbox/links-drive.txt",
   "source_file_sha": "fbbd8b05159826156813b50e0c8d201bf4c7c848",
   "policy": "Candidatos extraídos dos links fornecidos. Acesso, metadados, permissões e reprodução ainda não foram verificados.",
