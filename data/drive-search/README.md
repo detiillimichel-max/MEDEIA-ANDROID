@@ -1,6 +1,6 @@
 # Pesquisa Google Drive — MEDEIA
 
-O motor `engine/search_google_drive.py` pesquisa resultados públicos indexados usando `site:drive.google.com` pela API Firecrawl v2.
+O motor `engine/search_google_drive.py` pesquisa resultados públicos indexados usando `site:drive.google.com` pela API Firecrawl v2. A consulta restringe os resultados ao domínio `drive.google.com` e lê somente os campos de resultado do índice (URL, título e descrição), sem fazer scraping profundo de cada página.
 
 ## Execução local
 
