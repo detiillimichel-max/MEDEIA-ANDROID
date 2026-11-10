@@ -14,6 +14,8 @@
   const searchInput = $("#search-input");
   const filterCategory = $("#filter-category");
   let items = loadItems();
+  const localItems = items.slice();
+  let catalogLoaded = false;
 
   function loadItems() {
     try {
@@ -311,5 +313,43 @@
     }
   });
 
+  async function loadDriveCatalog() {
+    try {
+      const response = await fetch("./data/drive-search/catalog.json", { cache: "no-store" });
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      const catalog = await response.json();
+      if (!catalog || !Array.isArray(catalog.items)) throw new Error("Formato de catálogo inválido.");
+      const imported = catalog.items
+        .filter((entry) => entry && typeof entry.source_url === "string" && safeUrl(entry.source_url))
+        .map((entry) => ({
+          id: "drive-" + entry.id,
+          title: String(entry.title || "Programação extra").slice(0, 120),
+          url: entry.source_url,
+          source_type: "Google Drive",
+          format: entry.format || "Não identificado",
+          category: "Google Drive",
+          availability: entry.availability || "not_checked",
+          playback_status: entry.playback_status || "not_tested",
+          validation_note: "Catálogo importado · acesso e reprodução não verificados",
+          drive_file_id: entry.id || null,
+          resourcekey_present: Boolean(entry.resourcekey_present),
+          poster: null,
+          created_at: catalog.generated_at || new Date().toISOString()
+        }));
+      const localByUrl = new Map(localItems.map((entry) => [entry.url, entry]));
+      items = imported.map((entry) => localByUrl.get(entry.url) || entry);
+      for (const entry of localItems) {
+        if (!items.some((current) => current.url === entry.url)) items.push(entry);
+      }
+      catalogLoaded = true;
+      render();
+      showMessage(imported.length + " registros do catálogo Drive carregados. Acesso e reprodução continuam não verificados.");
+    } catch (error) {
+      render();
+      showMessage("Não foi possível carregar o catálogo Drive: " + error.message + ". Os dados locais continuam disponíveis.", true);
+    }
+  }
+
   render();
+  loadDriveCatalog();
 })();
