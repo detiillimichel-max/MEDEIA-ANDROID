@@ -1,4 +1,4 @@
-name: MEDEIA - Google Drive Search
+name: MEDEIA - Drive catalog
 
 on:
   pull_request:
@@ -10,11 +10,12 @@ on:
   workflow_dispatch:
     inputs:
       query:
-        description: "Nome do filme, série, desenho ou documentário"
-        required: true
+        description: "Busca opcional por título no Google Drive"
+        required: false
+        default: ""
         type: string
       limit:
-        description: "Quantidade máxima de resultados (1 a 20)"
+        description: "Quantidade máxima de resultados SearXNG (1 a 20)"
         required: false
         default: "10"
         type: string
@@ -27,47 +28,37 @@ jobs:
     name: Offline Python tests
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
       - name: Run unit tests
         run: python -m unittest discover -s tests -v
 
-  search-drive:
+  build-catalog:
     if: github.event_name == 'workflow_dispatch'
     needs: test
-    name: Search indexed Google Drive results
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Checkout selected branch
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.ref }}
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
-      - name: Search Google Drive index
+      - name: Build catalog
         env:
-          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+          SEARXNG_BASE_URL: ${{ vars.SEARXNG_BASE_URL }}
           MEDEIA_QUERY: ${{ inputs.query }}
           MEDEIA_LIMIT: ${{ inputs.limit }}
         run: |
-          python engine/search_google_drive.py \
+          python -m engine.build_drive_catalog \
             --query "$MEDEIA_QUERY" \
             --limit "$MEDEIA_LIMIT"
-
-      - name: Publish search catalog
+      - name: Publish catalog
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -75,6 +66,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No catalog changes to commit."
           else
-            git commit -m "Update Google Drive search catalog"
+            git commit -m "Build MEDEIA Google Drive catalog"
             git push
           fi
