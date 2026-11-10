@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101114">
+  <meta name="description" content="MEDEIA — biblioteca pessoal de links de mídia e playlists.">
+  <title>MEDEIA — Biblioteca</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="MEDEIA início"><span class="brand-mark">M</span><span>MEDEIA</span></a>
+    <span class="topbar-label">BIBLIOTECA PESSOAL</span>
+  </header>
+  <main class="shell">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">SUA CENTRAL DE CONTEÚDO</p>
+        <h1>Uma biblioteca.<br><span>Seus links organizados.</span></h1>
+        <p class="hero-copy">Adicione links de transmissão, playlists M3U/M3U8 e arquivos compartilhados do Google Drive. O MEDEIA identifica o tipo e guarda cada entrada como um card.</p>
+      </div>
+      <div class="hero-symbol" aria-hidden="true">▶</div>
+    </section>
+    <section class="add-panel panel" aria-labelledby="add-title">
+      <div class="section-heading">
+        <div><p class="eyebrow">ENTRADA DE CONTEÚDO</p><h2 id="add-title">Adicionar à biblioteca</h2></div>
+        <span class="step-chip">01 / ADICIONAR</span>
+      </div>
+      <form id="add-form">
+        <label for="source-input">Link VLC, M3U/M3U8 ou Google Drive</label>
+        <textarea id="source-input" rows="3" placeholder="Cole um link ou o conteúdo de uma playlist M3U..." required></textarea>
+        <p class="field-help">Você pode colar um endereço individual ou o texto de uma playlist M3U. Cada entrada reconhecida será transformada em um card.</p>
+        <div class="form-grid">
+          <div><label for="title-input">Nome (opcional)</label><input id="title-input" type="text" maxlength="120" placeholder="Ex.: Minha emissora / Filme"></div>
+          <div><label for="category-input">Categoria</label>
+            <select id="category-input">
+              <option value="Automático">Detectar automaticamente</option><option value="TV ao vivo">TV ao vivo</option><option value="Filmes">Filmes</option><option value="Séries">Séries</option><option value="Desenhos">Desenhos</option><option value="Documentários">Documentários</option><option value="Outros">Outros</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions"><button class="button button-primary" type="submit"><span>＋</span> Adicionar à biblioteca</button><button class="button button-quiet" id="clear-form" type="button">Limpar</button></div>
+        <p id="form-message" class="message" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+    <section class="library-section">
+      <div class="library-heading">
+        <div><p class="eyebrow">CONTEÚDOS GUARDADOS</p><h2>Minha biblioteca <span id="item-count" class="count">0</span></h2></div>
+        <div class="library-tools"><button class="button button-outline" id="export-json" type="button">Exportar JSON</button><button class="button button-outline" id="import-json" type="button">Importar JSON</button><input id="import-file" type="file" accept="application/json,.json" hidden></div>
+      </div>
+      <div class="filters">
+        <label class="search-wrap"><span aria-hidden="true">⌕</span><input id="search-input" type="search" placeholder="Buscar por nome, link ou categoria..." aria-label="Buscar na biblioteca"></label>
+        <select id="filter-category" aria-label="Filtrar por categoria"><option value="Todas">Todas as categorias</option><option value="TV ao vivo">TV ao vivo</option><option value="Filmes">Filmes</option><option value="Séries">Séries</option><option value="Desenhos">Desenhos</option><option value="Documentários">Documentários</option><option value="Playlists">Playlists</option><option value="Google Drive">Google Drive</option><option value="Outros">Outros</option></select>
+      </div>
+      <div id="library-grid" class="library-grid" aria-live="polite"></div>
+      <div id="empty-state" class="empty-state"><div class="empty-icon">▤</div><h3>Sua biblioteca começa aqui</h3><p>Cole um link acima. O MEDEIA vai identificar o formato e criar seu primeiro card.</p></div>
+    </section>
+    <section class="notice"><span class="notice-icon">i</span><p><strong>Sobre a verificação:</strong> esta primeira versão identifica o formato e guarda os links no próprio dispositivo. A confirmação de disponibilidade, leitura de metadados externos e busca automática serão adicionadas ao motor Python. Links que exigem login, DRM ou autorização não são desbloqueados pelo MEDEIA.</p></section>
+  </main>
+  <footer class="footer"><span>MEDEIA</span><span>Versão inicial · Biblioteca local</span></footer>
+  <script src="./app.js" defer></script>
+</body>
+</html>
