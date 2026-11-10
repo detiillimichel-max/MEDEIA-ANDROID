@@ -1,6 +1,12 @@
 name: MEDEIA - Google Drive Search
 
 on:
+  pull_request:
+    paths:
+      - "engine/**"
+      - "tests/**"
+      - "data/drive-search/**"
+      - ".github/workflows/drive-search.yml"
   workflow_dispatch:
     inputs:
       query:
@@ -17,7 +23,26 @@ permissions:
   contents: write
 
 jobs:
+  test:
+    name: Offline Python tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -v
+
   search-drive:
+    if: github.event_name == 'workflow_dispatch'
+    needs: test
     name: Search indexed Google Drive results
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -31,9 +56,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
-      - name: Run offline tests
-        run: python -m unittest discover -s tests -v
 
       - name: Search Google Drive index
         env:
