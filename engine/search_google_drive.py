@@ -43,7 +43,7 @@ def search_firecrawl(query: str, api_key: str, limit: int = 10) -> list[dict[str
     payload = {
         "query": full_query, "limit": max(1, min(limit, 20)),
         "sources": [{"type": "web"}],
-        "scrapeOptions": {"formats": [{"type": "markdown"}]},
+        "includeDomains": ["drive.google.com"],
     }
     request = urllib.request.Request(
         SEARCH_ENDPOINT, data=json.dumps(payload).encode("utf-8"),
