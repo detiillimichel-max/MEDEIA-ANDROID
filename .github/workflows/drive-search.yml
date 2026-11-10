@@ -1,0 +1,53 @@
+name: MEDEIA - Google Drive Search
+
+on:
+  workflow_dispatch:
+    inputs:
+      query:
+        description: "Nome do filme, série, desenho ou documentário"
+        required: true
+        type: string
+      limit:
+        description: "Quantidade máxima de resultados (1 a 20)"
+        required: false
+        default: "10"
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  search-drive:
+    name: Search indexed Google Drive results
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout selected branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Search Google Drive index
+        env:
+          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+        run: |
+          python engine/search_google_drive.py \
+            --query "${{ inputs.query }}" \
+            --limit "${{ inputs.limit }}"
+
+      - name: Publish search catalog
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/drive-search/catalog.json
+          if git diff --cached --quiet; then
+            echo "No catalog changes to commit."
+          else
+            git commit -m "Update Google Drive search catalog"
+            git push
+          fi
