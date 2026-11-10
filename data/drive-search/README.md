@@ -1,27 +1,26 @@
-# Pesquisa Google Drive — MEDEIA
+# MEDEIA — Catálogo Google Drive
 
-O motor `engine/search_google_drive.py` pesquisa resultados públicos indexados usando `site:drive.google.com` pela API Firecrawl v2. A consulta restringe os resultados ao domínio `drive.google.com` e lê somente os campos de resultado do índice (URL, título e descrição), sem fazer scraping profundo de cada página.
+## Fontes
+1. `data/drive-inbox/links-drive.txt`: links já coletados. O leitor extrai ID, rótulo e `resourcekey`, remove duplicações e preserva a URL original.
+2. SearXNG: busca adicional de páginas indexadas com `site:drive.google.com <título>`. Não exige chave de API, mas depende de uma instância pública que habilite JSON.
 
-## Execução local
-
-Requer Python 3.10+ e a variável de ambiente `FIRECRAWL_API_KEY`:
-
+## Gerar catálogo apenas com os links existentes
 ```bash
-export FIRECRAWL_API_KEY="sua-chave"
-python engine/search_google_drive.py --query "A fábrica de chocolate" --limit 10
+python -m engine.build_drive_catalog
 ```
 
-No GitHub Actions, configure `FIRECRAWL_API_KEY` em Settings → Secrets and variables → Actions → New repository secret.
+## Adicionar uma busca SearXNG
+Configure `SEARXNG_BASE_URL` com a URL HTTPS da instância escolhida, sem `/search`:
+```bash
+SEARXNG_BASE_URL="https://sua-instancia.example" python -m engine.build_drive_catalog --query "nome do filme" --limit 10
+```
+O motor chama `/search?q=...&format=json`. A instância precisa habilitar JSON; muitas instâncias públicas desativam esse formato ou aplicam limites. Não há rotação para contornar bloqueios ou limites.
 
-## Catálogo
-
-A saída padrão é `data/drive-search/catalog.json`. Guarda ID, URL original, título e descrição retornados pela pesquisa, consulta, categoria pendente e estados explícitos de acesso não verificado.
-
-## Limites
-
-- A pesquisa encontra somente páginas indexadas pelo provedor; não enumera todo o Google Drive.
-- Título/descrição do índice não substituem metadados confirmados pela API oficial do Drive.
-- Resultado encontrado não significa que o arquivo está público ou acessível.
-- Não baixa mídia, não contorna login, permissões, resourcekey, DRM ou telas de confirmação.
-- Não testa reprodução nesta etapa.
-- O arquivo bruto `data/drive-inbox/links-drive.txt` e o catálogo normalizado anterior não são modificados.
+## Segurança
+- Não altera `links-drive.txt`.
+- Não abre links individuais nem baixa mídia nesta fase.
+- Preserva URLs originais e `resourcekey`.
+- Deduplica por ID do arquivo.
+- Marca acesso e reprodução como não verificados.
+- A abertura final fica a cargo do Android/Google Drive, usando a conta e permissões do próprio usuário.
+- Nenhum e-mail, cookie, senha ou token Google é necessário no GitHub Actions.
