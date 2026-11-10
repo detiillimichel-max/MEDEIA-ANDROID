@@ -217,16 +217,7 @@
       open.target = "_blank";
       open.rel = "noopener noreferrer";
       open.textContent = "Abrir link";
-      const remove = document.createElement("button");
-      remove.type = "button";
-      remove.className = "delete";
-      remove.textContent = "Excluir";
-      remove.addEventListener("click", () => {
-        items = items.filter((entry) => entry.id !== item.id);
-        persist();
-        render();
-      });
-      actions.append(open, remove);
+      actions.append(open);
       body.append(title, meta, status, url, actions);
       card.append(art, body);
       grid.append(card);
