@@ -1,0 +1,43 @@
+name: MEDEIA Web - publicar teste
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: medeia-web-pages
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout branch selecionada
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Preparar catálogo para o site
+        run: |
+          test -f data/drive-search/catalog.json
+          mkdir -p web/data/drive-search
+          cp data/drive-search/catalog.json web/data/drive-search/catalog.json
+
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Enviar site estático
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: web
+
+      - name: Publicar site de teste
+        id: deployment
+        uses: actions/deploy-pages@v4
