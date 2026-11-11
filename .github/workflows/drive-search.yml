@@ -7,6 +7,11 @@ on:
       - "tests/**"
       - "data/drive-search/**"
       - ".github/workflows/drive-search.yml"
+  push:
+    branches:
+      - "medeia/google-drive-search-engine"
+    paths:
+      - ".github/workflows/drive-search.yml"
   workflow_dispatch:
     inputs:
       query:
@@ -45,7 +50,7 @@ jobs:
         run: python -m unittest discover -s tests -v
 
   experimental-search:
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push'
     needs: tests
     runs-on: ubuntu-latest
     timeout-minutes: 8
@@ -59,8 +64,8 @@ jobs:
       - name: Run experimental SearXNG search
         env:
           SEARXNG_BASE_URL: ${{ vars.SEARXNG_BASE_URL }}
-          MEDEIA_QUERY: ${{ inputs.query }}
-          MEDEIA_LIMIT: ${{ inputs.limit }}
+          MEDEIA_QUERY: ${{ inputs.query || 'documentários' }}
+          MEDEIA_LIMIT: ${{ inputs.limit || '5' }}
         run: |
           python -m engine.build_searxng_candidates \
             --query "$MEDEIA_QUERY" \
