@@ -22,7 +22,7 @@ on:
       limit:
         description: "Limite experimental por execução (máximo 10)"
         required: true
-        default: "10"
+        default: "5"
         type: choice
         options:
           - "5"
@@ -50,14 +50,18 @@ jobs:
         run: python -m unittest discover -s tests -v
 
   experimental-search:
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push'
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' &&
+       github.event.pull_request.head.repo.full_name == github.repository)
     needs: tests
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref }}
+          ref: ${{ github.event.pull_request.head.ref || github.ref }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -71,6 +75,8 @@ jobs:
             --query "$MEDEIA_QUERY" \
             --limit "$MEDEIA_LIMIT"
       - name: Save cumulative candidates
+        env:
+          TARGET_BRANCH: ${{ github.event.pull_request.head.ref || github.ref_name }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -79,5 +85,5 @@ jobs:
             echo "No candidate changes."
           else
             git commit -m "Update experimental SearXNG candidates"
-            git push origin "HEAD:${GITHUB_REF_NAME}"
+            git push origin "HEAD:$TARGET_BRANCH"
           fi
